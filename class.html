@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>课程表 | 计科专业</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #eef2f7;
+            font-family: 'Segoe UI', 'Roboto', 'Inter', system-ui, -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            padding: 2rem 1rem;
+            color: #1a2634;
+        }
+
+        /* 课表容器 */
+        .timetable-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* 头部信息 */
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2b4c7c 100%);
+            padding: 1.6rem 2rem;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .header h1:before {
+            content: "📅";
+            font-size: 1.9rem;
+            font-weight: normal;
+        }
+
+        .sub {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            margin-top: 8px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .sub span {
+            background: rgba(255,255,255,0.18);
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+        }
+
+        /* 表格样式 */
+        .table-wrapper {
+            overflow-x: auto;
+            padding: 0 0 2px 0;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+            min-width: 620px;
+        }
+
+        /* 表头 */
+        .schedule-table thead tr {
+            background: #f8fafd;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .schedule-table th {
+            padding: 1rem 0.8rem;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #1e3c72;
+            text-align: center;
+            background-color: #f1f5f9;
+            border-bottom: 1px solid #e0e7ef;
+        }
+
+        /* 普通单元格 */
+        .schedule-table td {
+            padding: 1rem 0.8rem;
+            text-align: center;
+            border-bottom: 1px solid #e9edf2;
+            vertical-align: middle;
+            background-color: #ffffff;
+            transition: background 0.2s;
+        }
+
+        /* 课程名称单元格左对齐增强可读性 */
+        .schedule-table td.course-cell {
+            text-align: left;
+            font-weight: 500;
+        }
+
+        /* 教室单元格 */
+        .schedule-table td.room-cell {
+            font-family: monospace;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        /* 节次/时间区域风格 */
+        .schedule-table td:first-child,
+        .schedule-table th:first-child {
+            font-weight: 600;
+            background-color: #fefefe;
+        }
+
+        .schedule-table tr:hover td {
+            background-color: #fafcff;
+        }
+
+        /* 连堂标记小标 */
+        .session-badge {
+            display: inline-block;
+            background: #eef2ff;
+            color: #1e4a76;
+            font-size: 0.7rem;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+
+        .course-name {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .class-info {
+            font-size: 0.8rem;
+            color: #4b5563;
+            font-weight: normal;
+            margin-left: 4px;
+        }
+
+        /* 教室icon点缀 */
+        .room-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 底部备注 */
+        .footer-note {
+            padding: 1rem 2rem 1.5rem;
+            background: #f9fbfd;
+            border-top: 1px solid #e9edf2;
+            font-size: 0.8rem;
+            color: #4a627a;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .legend {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-sample {
+            width: 14px;
+            height: 14px;
+            background: #eef2ff;
+            border-radius: 20px;
+            display: inline-block;
+            border: 1px solid #cbd5e1;
+        }
+
+        @media (max-width: 700px) {
+            body {
+                padding: 1rem 0.8rem;
+            }
+            .schedule-table th, .schedule-table td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.85rem;
+            }
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .course-name {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .session-badge {
+                margin-left: 0;
+                align-self: flex-start;
+            }
+        }
+
+        /* 突出连堂信息 */
+        .merge-highlight {
+            background-color: #fef9e6;
+        }
+        tr.merge-row td {
+            background-color: #fefcf5;
+        }
+    </style>
+</head>
+<body>
+<div class="timetable-container">
+    <div class="header">
+        <h1>📖 课程表</h1>
+        <div class="sub">
+            <span>🏛️ 敦雅楼（原砺志楼）教学区</span>
+            <span>📅 2025-2026学年 春季学期</span>
+            <span>💻 计算机科学与技术</span>
+        </div>
+    </div>
+
+    <div class="table-wrapper">
+        <table class="schedule-table">
+            <thead>
+                <tr>
+                    <th>周次</th>
+                    <th>上课时间</th>
+                    <th>课程名称（班级信息）</th>
+                    <th>教室</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- 第1节：软件工程 -->
+                <tr>
+                    <td>周一</td>
+                    <td>08:00 – 10:50</td>
+                    <td class="course-cell">
+                        <div class="course-name">
+                          🌐 专业外语
+                        </div>
+                    </td>
+                    <td class="room-cell">🏛️ 砺志楼 C203</td>
+                </tr>
+                
+                <tr>
+                    <td>周一</td>
+                    <td>14:30 - 16:20</td>
+                    <td class="course-cell">
+                        <div class="course-name">
+                             ⚙️ 嵌入式系统
+                        </div>
+                    </td>
+                    <td class="room-cell">🏛️ 砺志楼 C203</td>
+                </tr>
+                
+                <tr>
+                    <td>周二</td>
+                    <td>19:30 - 21:20</td>
+                    <td class="course-cell">
+                        <div class="course-name">
+                            👁️ 计算机视觉
+                        </div>
+                    </td>
+                    <td class="room-cell">🏛️ 砺志楼 C203</td>
+                </tr>              
+                
+                <tr>
+                    <td>周三</td>
+                    <td>08:00 – 10:50</td>
+                    <td class="course-cell">
+                        <div class="course-name">
+                            📘 软件工程
+                        </div>
+                    </td>
+                    <td class="room-cell">🏛️ 砺志楼 C203</td>
+                </tr>
+                
+                <tr>
+                    <td>周三</td>
+                    <td>14:30 – 16:20</td>
+                    <td class="course-cell">
+                        <div class="course-name">
+                             ⚙️ 嵌入式系统
+                        </div>
+                    </td>
+                    <td class="room-cell">🏛️ 砺志楼 C203</td>
+                </tr>
+                                
+                
+                 <tr>
+                    <td>周四</td>
+                    <td>08:00 - 10:50</td>
+                    <td class="course-cell">
+                        <div class="course-name">
+                             💻  Java Web开发技术
+                        </div>
+                    </td>
+                    <td class="room-cell">🏛️ 一号楼 B306</td>
+                </tr>
+        
+                <tr>
+                    <td>周五</td>
+                    <td>10:10 – 12:00</td>
+                    <td class="course-cell">
+                        <div class="course-name">
+                            📘 软件工程
+                        </div>
+                    </td>
+                    <td class="room-cell">🏛️ 砺志楼 C203</td>
+                </tr>
+                
+                <tr>
+                    <td>周五</td>
+                    <td>10:10 – 12:00</td>
+                    <td class="course-cell">
+                        <div class="course-name">
+                            🌐 专业外语
+                        </div>
+                    </td>
+                    <td class="room-cell">🏛️ 砺志楼 C203</td>
+                </tr>
+                </tbody>
+        </table>
+    </div>
+
+    <div class="footer-note">
+        <div class="legend">
+            <span>📌 大部分课程地点均为 <strong>砺志楼C203</strong> (敦雅楼)</span>        
+        </div>
+        <div style="font-size:0.75rem; opacity:0.7;">
+            ⏱️ 时间编排参照教学作息表
+        </div>
+    </div>
+</div>
+</body>
+</html>
